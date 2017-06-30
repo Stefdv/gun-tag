@@ -1,0 +1,28 @@
+<html>
+	<script src="https://rawgit.com/amark/gun/master/gun.js"></script>
+	<script src="./gun-tag.js"></script>
+	<h1>Use the console:</h1>
+	<code>
+gun.get('Stefdv').put({name:'Stef'}).tag(['Developer/JS','likesGun','Developer/HTML'])
+gun.get('Bob').put({name:'Bob'}).tag(['Developer/JS','likesGun', 'Contacts'])
+gun.get('Alice').put({name:'Alice'}).tag('Contacts')
+gun.get('Mark').put({name:'Mark'}).tag(['Contacts','Developers/JS,'ownsGun'])
+
+gun.tagged().val(Gun.log)  
+// {Developer/JS:Object, likesGun:Object,Contacts:Object,ownsGun',Developer/HTML:Object}
+
+gun.tagged('likesGun',Gun.log)
+//  {name:'Stefdv',...}
+// {name:'Bob',...}
+
+gun.tagged('Developer/TAGS',Gun.log)
+// {JS:Object,HTML:Object}
+
+gun.tagged('Developer/JS',Gun.log)
+// {name:'Stefdv',...}
+// {name:'Mark',...}
+
+gun.intersect(['Developers/JS','ownsGun'],Gun.log)
+// {name:'Mark',...}
+	</code>
+</html>

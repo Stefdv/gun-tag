@@ -7,7 +7,11 @@
  * 
  */
 ;(function(){
-  if(typeof window === "undefined"){ var Gun = require('gun/gun') }
+  if(typeof window !== "undefined"){
+    var Gun = window.Gun;
+  } else { 
+    var Gun = require('gun/gun');
+  }
   var _scope = 'guntagger/';
   var _scopes = '__scopes';
 
