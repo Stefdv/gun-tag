@@ -116,21 +116,17 @@ Gun.chain.tag = function (tag) {
             gun.get('guntagger/TAGS').get('BOOKS').get('#').put('BOOKS/TAGS')
       */
        
-      _checkPathExists(this,newScope+'/TAGS') // only if this scope is not yet registered
-        .then(null,notFound=>{
           g_root.get(_scope+'TAGS').get(newScope).put({'#': newScope+'/TAGS'}); 
           // register scope
           g_root.get(_scope+_scopes).get(newScope).put(1); 
-       });
-      
+
       /*
         we want gun.tagged('BOOKS/TAGS') and get 'HORROR' and 'FANTASY'
             gun.get('BOOKS/TAGS').get('FANTASY').get('#').put('BOOKS/FANTASY')
       */
-      _checkPathExists(this,scopeSoul)  // Only if 'Books/Fantasy' is not a node yet!
-        .then(null,notFound=>{
+
            g_root.get(newScope+'/TAGS').get(newTag).put({'#':scopeSoul});
-       })
+
 
       /*
         We want gun.tagged('BOOKS/FANTASY') and get all 'FANTASY' books
