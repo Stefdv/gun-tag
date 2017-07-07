@@ -14,6 +14,8 @@ It will give you the following;
 * find intersects (multiple tags)
 * filter nodes
 
+[What you could do with gu-tag](./Polymer_Gun_electron-starter-Google-Chrome-7-7-2017-21_28_32.gif)
+
 ### Setup
 
 ##### Prerequisites
