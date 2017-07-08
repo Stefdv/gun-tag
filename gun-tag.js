@@ -1,6 +1,5 @@
 /**
  * guntagger
- * @version 2.0.0 ( optimized for Gun ^0.7.x )
  * @author  S.J.J. de Vries ( Stefdv2@hotmail.com)
  * @gitter @Stefdv
  * @purpose Add tagging capabilities to Gun
