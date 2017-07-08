@@ -12,7 +12,7 @@
   } else { 
     var Gun = require('gun/gun');
   }
-  var _scope = 'guntagger/';
+  var _scope = 'gun-tag/';
   var _scopes = '__scopes';
 
 
@@ -53,6 +53,7 @@ function _checkPathExists(gun,targetSoul) {
 
 
 
+
 /**
  * get the main scope ( 'guntagger')
  */
@@ -66,21 +67,17 @@ Gun.chain.setScope = newScope=> _scope = newScope+'/';
 /**
  * get the current scopes for easy reference
  */
-Gun.chain.getScopes = ()=> {return SCOPES};
+Gun.chain.getScopes = function() {
+ return new Promise(resolve=>{
+    var r_gun = this.back(-1)
+    r_gun.get(r_gun.getScope()+'/__scopes').val(sc=>{
+      resolve(sc)
+    })
+  })
+ };
 
 
-/**
- * Sometimes i need to check if a provided tag is actually a scope
- * For speed-sake i want it assigned to a variable -> SCOPES
- * so i can easily do if( SCOPES[tag] ) {// its a scope}
- *
- * @amark 
- * Right now i have the user call this after they load guntagger.
- * How can i call this from within guntagger.js ? 
- */
-Gun.chain.setScopesLocal = function() {
-  this.get(_scope+ _scopes).on(sc=> SCOPES = sc ? sc : {})
-};
+
 
 
 /**
@@ -118,7 +115,9 @@ Gun.chain.tag = function (tag) {
        
           g_root.get(_scope+'TAGS').get(newScope).put({'#': newScope+'/TAGS'}); 
           // register scope
+          // 'gun-ui/__scopes'
           g_root.get(_scope+_scopes).get(newScope).put(1); 
+
 
       /*
         we want gun.tagged('BOOKS/TAGS') and get 'HORROR' and 'FANTASY'
@@ -309,55 +308,46 @@ Gun.chain.untag = function (tag) {
       souls = [],
       orgSoul = gun._.soul,
       cb = cb || n,
-      end = end || n,
-      a_tags=[]
+      end = end || n
+      //,a_tags=[]
 
       gun.val(function (list) {
-        if(!list){ cb(list);end(list);} 
-        else {
+        var args = Array.prototype.slice.call(arguments);
+        if(!list){ end.apply(this, args);} 
+
+        Gun.node.is(list, function (n, soul) {
+          count += 1;
+          souls.push(soul);
+        });
+
+        souls.forEach( soul => {   
+          gun.back(-1).get(soul).val(function(tagmember,key){
+              let g_tm = this;
+              let a_tags = [];
+              g_tm.get('tags').val( tags => {
+                if(tag && tagmember[tag]){ //proptag
+                  a_tags.push(tag);
+                }
+                // only get valid tags
+                if(typeof tags =='object') { 
+                  Object.keys(tags).forEach(tag => { if(tags[tag] == 1){ a_tags.push(tag) } });
+                } else { console.warn ('"%s" is not tagged ',key)};
+                tagmember.taglist = a_tags;
+                returnCb(g_tm,arguments,key)
+              });
+            }); 
+          });
           function returnCb(g_tm,args,soul){
             count -= 1;
             // orgSoul will be scope/tag or 'guntagger/tag'
             if(args[0].taglist.includes(orgSoul) || args[0].taglist.includes(orgSoul.split('/')[1]) ||  args[0][orgSoul]==true || arguments[0][orgSoul.split('/')[1]]==true ){
               cb.apply(g_tm, args);
             };
-            if (!count) {end.apply(g_tm, args);} ;
+            if (!count) {
+              end(souls, args);
+            };
           };
-
-          var args = Array.prototype.slice.call(arguments);
-          Gun.node.is(list, function (n, soul) {
-           /* TODO: Bug: somehow, somewhere the scope/tag is set as node
-                    resulting in a soul: '#'
-           */
-            if(soul !== '#') {
-               count += 1;
-                souls.push(soul);
-            }
-          });
-
-          souls.forEach(function (soul) {   
-            gun.back(-1).get(soul).val(function(tagmember,key){
-              var g_tm = this;
-
-
-
-              g_tm.get('tags').val(tags => {
-                a_tags=[];
-                if(tag && tagmember[tag]){ //proptag
-                  a_tags.push(tag)
-                }
-                // only get valid tags
-                if(typeof tags =='object') { 
-                  Object.keys(tags).forEach(tag => { 
-                    if(tags[tag] == 1){ a_tags.push(tag) } 
-                  });
-                } else {console.warn ('tags is not an object on ',key)};
-                tagmember.taglist = a_tags;
-                returnCb(g_tm,arguments,key)
-              });
-            }); 
-          });
-        }
+    
       }); 
       return gun;
     };
