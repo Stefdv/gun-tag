@@ -2,7 +2,7 @@
 
 ### Intro
 
-GUN Tag is a plugin for Gun(^0.7.x) using `Gun.chain`. 
+GUN Tag is a plugin for Gun(^0.8.x) using `Gun.chain`. 
 
 If you need to organize your data with tags/labels this might be useful. gun-tag enables you to tag and untag nodes to custom tags/labels.
 
