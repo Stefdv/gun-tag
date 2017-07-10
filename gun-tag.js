@@ -1,6 +1,5 @@
 /**
  * gun-tag
- * @version 2.0.2 ( optimized for Gun ^0.8.x )
  * @author  S.J.J. de Vries ( Stefdv2@hotmail.com)
  * @gitter @Stefdv
  * @purpose Add tagging capabilities to Gun
