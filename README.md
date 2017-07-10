@@ -2,19 +2,19 @@
 
 ### Intro
 
-GUN Tag is a plugin for Gun(^0.8.x) using `Gun.chain`. 
+GUN Tag is a plugin for Gun(^0.8.x) using `Gun.chain`.
 
 If you need to organize your data with tags/labels this might be useful. gun-tag enables you to tag and untag nodes to custom tags/labels.
 
 It will give you the following;
-* tag nodes 
+* tag nodes
 * untag nodes
 * scopetag nodes
 * proptag nodes
 * find intersects (multiple tags)
 * filter nodes
 
-[What you could do with gu-tag](./Polymer_Gun_electron-starter-Google-Chrome-7-7-2017-21_28_32.gif)
+[What you could do with gun-tag](./Polymer_Gun_electron-starter-Google-Chrome-7-7-2017-21_28_32.gif)
 
 ### Setup
 
@@ -47,7 +47,7 @@ Six methods are exposed for your gun instance;
 * `.tagfilter`
 
 ## gun.get('stefdv').tag('programmer')
-You can pass .tag multiple names to index a node under. When called, it will try to read out your current context, index it under each tag, and then place each tag under a master list of every tag ever used. 
+You can pass .tag multiple names to index a node under. When called, it will try to read out your current context, index it under each tag, and then place each tag under a master list of every tag ever used.
 @tag can be ~~a list ('one','two/','three',...)~~ an Array (['one','Numbers/two','three']) or a single String ('one')
 
 ```
@@ -63,13 +63,13 @@ gun.put({
 ```
 
 ### Additional : gun.tag('scope/name')
-The same as `'tag` but when you put a '/' in your tagname the tag will be 'scoped'. 
+The same as `'tag` but when you put a '/' in your tagname the tag will be 'scoped'.
 ##### Say what?
 Suppose you want to tag your Books and Movies. And you want to categorize them in themes also ( 'Fantasy','Comedy',etc), oh and tag them to the author.
 ```
   gun.get('IT')
     .put({title:'IT',discription:'Some scary stuff about a clown'})
-    .tag(['Books/Horror','Books/Fantasy',Movies/Horror','Movies/'Fantasy'Authors/King','Fantasy/Book','Horror/Movie']);
+    .tag(['Books/Horror','Books/Fantasy',Movies/Horror','Movies/'Fantasy','Authors/King','Fantasy/Book','Horror/Movie']);
 
 ```
 
@@ -92,12 +92,12 @@ To get all Fantasy books
 ```
 
 #### Usefull ?
-Well yeah... You could create a selector 'Choose Book theme' and let the user select a theme. Upon selection you present all books belonging to that theme. 
+Well yeah... You could create a selector 'Choose Book theme' and let the user select a theme. Upon selection you present all books belonging to that theme.
 
-### gun.get().untag('Name')
+### gun.get().untag('name')
 The same 'rules' as tagging but now the nodes get 'untagged'.
 > nodes that are untagged will only be filtered out when you use `gun.tagged()`
-> Using the normal Gun API `gun.get('tagname') will NOT leave out untagged 
+> Using the normal Gun API `gun.get('tagname')`  will NOT leave out untagged
 > nodes.  
 
 ### gun.get().proptag('name')
@@ -109,7 +109,7 @@ A special kind of tag. With 'proptag' the provided tag wil be set as a direct pr
 
 A proptag can be untagged like any other tag.
 ```
-  gun.get('Stefdv').untag('likesGun'); 
+  gun.get('Stefdv').untag('likesGun');
 ```
 
 ### gun.tagged()
@@ -119,7 +119,7 @@ gun.tagged().val(cb)
 ```
 
 ### gun.tagged(,cb)
-Provide a tagname and a callback to get all valid members of that tag. The callback. The returned nodes are full objects including an extra property 'taglist' that will hold all the tags this node is (still) tagged to.
+Provide a tagname and a callback to get all valid members of that tag. The returned nodes are full objects including an extra property 'taglist' that will hold all the tags this node is (still) tagged to.
 ```
  gun.tagged('gunDb',tagmember => console.log(tagmember) )
 
@@ -133,11 +133,12 @@ Provide a tagname and a callback to get all valid members of that tag. The callb
 ```
 
 ### gun.intersect([tag1,tag2,...],cb)
-An intersect is a list with nodes that are tagged to ALL provided tags
-get all Fantasy books, written by (Stephen) King , published in 1988
+An intersect is a list with nodes that are tagged to ALL provided tags.
+Get all Fantasy books, written by (Stephen) King , published in 1988
 ```
- gun.intersect(['Books/Fantasy',Authors/King,Published:1988],cb)
+ gun.intersect(['Books/Fantasy','Authors/King','Published/1988'],cb)
 ```
-
+### Advise
+gun-tag is born of necessity, and over time became really powerfull if you fully understand it's potential. That being said... tell me what you want to do and - maybe- i can advise you. I'm not much of an email reader so ping me in [gitter](https://gitter.im/amark/gun) @Stefdv
 ### Credits
-Thanks to Mark Nadal for writing Gun and for helping out whenever i need.
+Thanks to Mark Nadal for writing Gun  and for helping out whenever i need.

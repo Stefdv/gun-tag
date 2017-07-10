@@ -1,35 +1,34 @@
 /**
- * guntagger
+ * gun-tag
  * @version 2.0.2 ( optimized for Gun ^0.8.x )
  * @author  S.J.J. de Vries ( Stefdv2@hotmail.com)
  * @gitter @Stefdv
  * @purpose Add tagging capabilities to Gun
- * 
+ *
  */
 ;(function(){
   if(typeof window !== "undefined"){
     var Gun = window.Gun;
-  } else { 
+  } else {
     var Gun = require('gun/gun');
   }
   var _scope = 'gun-tag/';
   var _scopes = '__scopes';
 
-
-
-  /* check if it's a valid node */
+  // check if it's a valid node
   function invalid(value) {
     if (typeof value !== 'object' || !value._) {
       console.warn('Only nodes can be tagged');
       return true;
     }
   };
-  /**
+/*
  * When we receive an Array we will pass each entry one by one to the required method
- * @gun  {Object}  gun context
- * @tags {Array}   either an Array or a CSV
- * @cb   {String}  method name of the function to return to
+ * gun  gun context
+ * tags either an Array or a CSV
+ * cb   method name of the function to return to
  */
+
 function serialize(gun,tags,method) {
   tags = Array.isArray(tags) ? tags : Array.prototype.slice.call(tags);
   tags.forEach(function (tag) {
@@ -37,12 +36,12 @@ function serialize(gun,tags,method) {
   });
 };
 
-/**
+/*
  * Check if soul exists
- * eg 'BOOKS/TAGS'  or 'guntagger/PERSONS' or 'MOVIES/Sci-Fi'
+ * eg 'BOOKS/TAGS' or 'guntagger/PERSONS' or 'MOVIES/Sci-Fi'
+ * returns a Promise
  */
 function _checkPathExists(gun,targetSoul) {
-
   return new Promise( function(resolve,reject) {
     gun.back(-1).get(targetSoul)
       .val(function(list){
@@ -51,124 +50,116 @@ function _checkPathExists(gun,targetSoul) {
   })
 };
 
-
-
-
-/**
+/*
  * get the main scope ( 'guntagger')
  */
-Gun.chain.getScope = () => {return _scope.split('/')[0]};
+Gun.chain.getScope = () => {
+  return _scope.split('/')[0]
+};
 
-/**
+/*
  * change the main scope
  */
-Gun.chain.setScope = newScope=> _scope = newScope+'/';
+Gun.chain.setScope = newScope =>{
+   console.info('%cThe default scope is "%s", if you change it, you will have to do that everytime your app starts!',"color:blue;",_scope);
+   _scope = newScope+'/';
+ }
 
-/**
+/*
  * get the current scopes for easy reference
+ * returns a Promise
+ * gun.getScopes().then()
  */
 Gun.chain.getScopes = function() {
  return new Promise(resolve=>{
-    var r_gun = this.back(-1)
+    var r_gun = this.back(-1);
     r_gun.get(r_gun.getScope()+'/__scopes').val(sc=>{
       resolve(sc)
     })
   })
  };
 
-
-
-
-
-/**
- * --------------- tag ------------------- 
+/*
+ * --------------- tag -------------------
  * The most basic form of tagging
  * `gun.tag('TAG1')` OR `gun.tag(['TAG1','TAG2'])`
  *
  * Scoped tag
- *   gun.get('IT').tag('BOOKS/Fantasy') OR  gun.get('IT').tag(['BOOKS/Fantasy','BOOKS/Horror'])
- * 
+ * gun.get('IT').tag('BOOKS/Fantasy') OR  gun.get('IT').tag(['BOOKS/Fantasy','BOOKS/Horror'])
+ *
  */
 Gun.chain.tag = function (tag) {
   if(!tag) { return this;};
   var g_root = this.back(-1);
   var nodeSoul,scopeSoul,newScope,newTag;
-
   if (Array.isArray(tag) ) { return serialize(this, tag, 'tag');}
-
 
   // if we got here we have a single 'string'
   return this.val(function (node) {
-    if (invalid(node)) { return this;} 
+    if (invalid(node)) { return this;}
     nodeSoul= node._['#'];
-    
-    if(tag.includes('/')){
+
+    if(tag.includes('/')) {
       // eg gun.get('IT').tag('BOOKS/FANTASY')
       scopeSoul  = tag;
       newScope = scopeSoul.split('/')[0];
       newTag   = scopeSoul.split('/')[1];
 
       /*
-        We want gun.tagged().val(cb) to give us all exisiting tags
-            gun.get('guntagger/TAGS').get('BOOKS').get('#').put('BOOKS/TAGS')
-      */
-       
-          g_root.get(_scope+'TAGS').get(newScope).put({'#': newScope+'/TAGS'}); 
-          // register scope
-          // 'gun-ui/__scopes'
-          g_root.get(_scope+_scopes).get(newScope).put(1); 
-
-
-      /*
-        we want gun.tagged('BOOKS/TAGS') and get 'HORROR' and 'FANTASY'
-            gun.get('BOOKS/TAGS').get('FANTASY').get('#').put('BOOKS/FANTASY')
+       * We want gun.tagged().val(cb) to give us all exisiting tags
+       * gun.get('guntagger/TAGS').get('BOOKS').get('#').put('BOOKS/TAGS')
       */
 
-           g_root.get(newScope+'/TAGS').get(newTag).put({'#':scopeSoul});
-
+      g_root.get(_scope+'TAGS').get(newScope).put({'#': newScope+'/TAGS'});
+      // register scope
+      // 'gun-ui/__scopes'
+      g_root.get(_scope+_scopes).get(newScope).put(1);
 
       /*
-        We want gun.tagged('BOOKS/FANTASY') and get all 'FANTASY' books
-          gun.get('BOOKS/FANTASY').get('IT').get('#').put('IT')
+       * we want gun.tagged('BOOKS/TAGS') and get 'HORROR' and 'FANTASY'
+       * gun.get('BOOKS/TAGS').get('FANTASY').get('#').put('BOOKS/FANTASY')
+      */
+      g_root.get(newScope+'/TAGS').get(newTag).put({'#':scopeSoul});
+
+      /*
+       * We want gun.tagged('BOOKS/FANTASY') and get all 'FANTASY' books
+       * gun.get('BOOKS/FANTASY').get('IT').get('#').put('IT')
       */
       g_root.get(scopeSoul).get(nodeSoul).put({'#':nodeSoul});
 
-    } else { 
-      // _checkPathExists(this,_scope+tag)  // Only if 'Books/Fantasy' is not a node yet!
-      //  .then(null,notFound=>{
-          g_root.get(_scope+'TAGS').get(tag).put({'#':_scope+tag});
-     //  })
-      
-      // register this node to the tag -> 'guntagger/books' 
+    } else {
+      g_root.get(_scope+'TAGS').get(tag).put({'#':_scope+tag});
+
+      // register this node to the tag -> 'guntagger/books'
       g_root.get(_scope+tag).get(nodeSoul).put({'#':nodeSoul});
     };
-    /* 
-      finally add the tag to the nodes own 'tag' property
-      This will enable tag/untag by switching 0/1
+    /*
+    * finally add the tag to the nodes own 'tag' property
+    * This will enable tag/untag by switching 0/1
     */
     this.get('tags').get(tag).put(1);
   });
 };
 
 
-/**
- * --------------- proptag ------------------- 
- * Instead of setting the tag on the node as a ref, 
+/*
+ * --------------- proptag -------------------
+ * Instead of setting the tag on the node as a ref,
  * the tag will become a direct property on the node.
  *
  * Why?
  * It speeds-up comparing when you want to know if a node is tagged to something
  * Instead of retrieving the tags from Gun to check if the node belongs to a certain tag
  * you can see it on the node directly.
- *
- *  {name:'Stefdv', developer:1 ,...}
+ * {name:'Stefdv', developer:1 ,...}
  *
  * Usage:
- *    gun.get('Stefdv').proptag('Developers') 
- *    gun.get('Stefdv').proptag(['Developers','lovesGun'])
+ * gun.get('Stefdv').proptag('Developers')`
+ * gun.get('Stefdv').proptag(['Developers','lovesGun'])`
  *
  * You can still tag/untag like with a normal tag.
  */
+
 
 Gun.chain.proptag = function(tag){
   if(!tag) { return this;}
@@ -177,38 +168,36 @@ Gun.chain.proptag = function(tag){
   };
   var g_root = this.back(-1);
 
-  // if we got here we have a single 'string'
+  //if we got here we have a single 'string'
   return this.val(function (node) {
-    if (invalid(node)) { return this;} 
-    else { 
-      // gun.get('guntagger/TAGS').get('Developers').put({'#':'guntagger/Developers'})
-      g_root.get(_scope+'TAGS').get(tag).put({'#':_scope+tag}); 
+    if (invalid(node)) { return this;}
+    else {
+      //gun.get('guntagger/TAGS').get('Developers').put({'#':'guntagger/Developers'})
+      g_root.get(_scope+'TAGS').get(tag).put({'#':_scope+tag});
 
-      // gun.get('guntagger/Developers').get('Stefdv').put({'#':'Stefdv'})
+      //gun.get('guntagger/Developers').get('Stefdv').put({'#':'Stefdv'})
       g_root.get(_scope+tag).get(node._['#']).put({'#':node._['#']});
 
-      // gun.get('developer').put(1);
+      //gun.get('developer').put(1);
       this.get(tag).put(true);
     }
   });
 };
-/* --------------- untag ------------------- 
-  gun.untag('TAG1','TAG2') -> serialize()
-  gun.untag(['TAG1','TAG2']) -> serializeArray()
-*/
-/**
- * --------------- untag ------------------- 
+/* --------------- untag -------------------
+ *  gun.untag('TAG1','TAG2') -> serialize()
+ *  gun.untag(['TAG1','TAG2']) -> serializeArray()
+ * --------------- untag -------------------
  * There is only one 'untag' !
- * 
+ *
  * from normal tag
  *   gun.get('Stefdv').untag('Human')
- *   
+ *
  * from scopetag
  *    gun.get('IT').untag(['BOOKS/Fantasy','MOVIES/Fantasy']);
  *
  * from proptag
  *   gun.get('Stefdv').untag('Developers');
- *    
+ *
  */
 Gun.chain.untag = function (tag) {
   if (arguments.length !== 1 || Array.isArray(tag)) {
@@ -226,18 +215,18 @@ Gun.chain.untag = function (tag) {
   });
 };
 
-/**
+/*
  * --------------- tagged -------------------
- *     gun.tagged().val(cb) -> get all tags
- *     gun.tagged('TAG1',eachCb,endCb)          ->  get all - valid nodes from 'TAG1' including 
- *                                                  property 'taglist' that hos the actual tags
- *     gun.tagged('books/fantasy',eachCb,endCb) -> get all fantasy books
+ *  gun.tagged().val(cb) -> get all tags
+ *  gun.tagged('TAG1',eachCb,endCb)          ->  get all - valid nodes from 'TAG1' including
+ *                                               property 'taglist' that hos the actual tags
+ *  gun.tagged('books/fantasy',eachCb,endCb) -> get all fantasy books
  *
- *     gun.tagged('TAG').val(cb)  just gives you a list with souls
+ *  gun.tagged('TAG').val(cb)  just gives you a list with souls
 */
 
   ;(function(){
-    /**
+    /*
      * tagged should just do that...give me the tags.
      * so scoped tags are just 'Books/Fantasy', 'Movies/Comedy'
      */
@@ -250,36 +239,32 @@ Gun.chain.untag = function (tag) {
 
           // gun.tagged('developers').val(cb)
           if(arguments.length ===1) {
-
             if(typeof tag == 'string'){
-
-               if(tag.includes('/')) {  return this.back(-1).get(tag); } 
-
+               if(tag.includes('/')) {  return this.back(-1).get(tag); }
                else { return this.back(-1).get(_scope+tag); };
             } else {return this;}
           };
 
           // gun.tagged('books/fantasy',eachCb,endCb)
           if(arguments.length > 1){
-
             var gun = this;
             var __scope = null;
             var __tag=null;
             var __scoped = false;
             var each = typeof arguments[1] == 'function' ? arguments[1] : function(node){};
             var end =  typeof arguments[2] == 'function' ? arguments[2] : false;
-           
+
            // eg. gun.tagged('developers',eachCb,endCb)
-           
-              if(!tag.includes('/')){  
+
+              if(!tag.includes('/')){
                __scoped=false;
                __scope=null;
-               __tag=null;  
+               __tag=null;
 
                tagMapEnd(gun.get(_scope+tag), each,end,tag); //'guntagger/Persons'
               };
               // scoped eg gun.tagged('BOOKS/fantasy',eachCb,endCb)
-              if(tag.includes('/')){ 
+              if(tag.includes('/')){
                 if( tag.split('/')[1]=='TAGS'){ this.tagged(tag).val(each) }
                 else { tagMapEnd(gun.get(tag), each,end,tag); }
               }
@@ -288,18 +273,10 @@ Gun.chain.untag = function (tag) {
 
 
 
-    /** 
+    /*
      * Helper
-     * Almost the same as 'valMapEnd' but this will add the 
+     * Almost the same as 'valMapEnd' but this will add the
      * actual tags to the returned nodes as 'taglist'.
-     * Can be called instead of 'gun.tagged' but 
-     * Gun.chain.tagged uses this to show the final results
-     *
-     * @amark : 
-     *      I want this to be a private function.
-     *      But i don't know what context to send it instead of doing
-     *      gun.get('mySoul').tagMapEnd(eachCb,endCb)  
-     *
      */
 
     function tagMapEnd(gun, cb, end,tag) {
@@ -308,19 +285,18 @@ Gun.chain.untag = function (tag) {
       souls = [],
       orgSoul = gun._.soul,
       cb = cb || n,
-      end = end || n
-      //,a_tags=[]
+      end = end || n;
 
       gun.val(function (list) {
         var args = Array.prototype.slice.call(arguments);
-        if(!list){ end.apply(this, args);} 
+        if(!list){ end.apply(this, args);}
 
         Gun.node.is(list, function (n, soul) {
           count += 1;
           souls.push(soul);
         });
 
-        souls.forEach( soul => {   
+        souls.forEach( soul => {
           gun.back(-1).get(soul).val(function(tagmember,key){
               let g_tm = this;
               let a_tags = [];
@@ -329,13 +305,13 @@ Gun.chain.untag = function (tag) {
                   a_tags.push(tag);
                 }
                 // only get valid tags
-                if(typeof tags =='object') { 
+                if(typeof tags =='object') {
                   Object.keys(tags).forEach(tag => { if(tags[tag] == 1){ a_tags.push(tag) } });
                 } else { console.warn ('"%s" is not tagged ',key)};
                 tagmember.taglist = a_tags;
                 returnCb(g_tm,arguments,key)
               });
-            }); 
+            });
           });
           function returnCb(g_tm,args,soul){
             count -= 1;
@@ -347,17 +323,17 @@ Gun.chain.untag = function (tag) {
               end(souls, args);
             };
           };
-    
-      }); 
+
+      });
       return gun;
     };
   }());
-  
-  /**
+
+  /*
    * -------  intersect -----------------
    * get all nodes that share exactly the same tags
-   *   gun.íntersect(['programmer','photographer'],eachCb,endCb) 
-   *   
+   *   gun.íntersect(['programmer','photographer'],eachCb,endCb)
+   *
    * Intersect should load all nodes that are tagged to all provided tags.
    * So we only need to process one of the provided tags and check each node's taglist
    * to see if it also has the other(s) ;p
@@ -365,13 +341,13 @@ Gun.chain.untag = function (tag) {
    * TODO: what to return if one of the provided tags does not exists ??
    *   gun.intersect(['NoneExistingTag','existingTag'],eachCb,endCb)
    */
-      
+
   Gun.chain.intersect=function(tags,eachCb,endCb){
     var gun = this;
     if(!Array.isArray(tags)){
       console.warn('intersect needs an array with at least two existing tags');
       return this;
-    } 
+    }
 
     if(arguments.length > 1){
       var gun = this;
@@ -380,6 +356,9 @@ Gun.chain.untag = function (tag) {
       var end =  typeof arguments[2] == 'function' ? arguments[2] : false;
       // we only have to look at one tag because the node has to have them all anyway
       gun.tagged(tags[0],function(node){
+        if(!node){
+          console.warn('"%s" is a non-exisitng tag!',tags[0])
+        }
         count=0;
         for (var t in tags) {
           if(node && node.taglist && node.taglist.includes(tags[t])){
@@ -390,19 +369,21 @@ Gun.chain.untag = function (tag) {
         if(count == tags.length){
           each(node)
         }
-        
+
       })
     }
   };
 
-  /**
+  /*
    * ----------- tagfilter -----------------
-   *   gun.tagfilter('BOOKS',"title,author",'IT',cb)  -> will only return nodes that has 'it' in title or author 
+   *   gun.tagfilter('BOOKS',"title,author",'IT',cb)  -> will only return nodes that has 'it' in title or author
    *
    *  @tag      {String}  The tag/collection you want to filter on  eg. 'Books'
    *  @filterBy {String}  A comma seperated string with the properties you want to filter on
-   *  @query    {String}  A string with the values your looking for
+   *  @query    {String}  A string with the value your looking for
    *  @cb       {function} callback
+   * NOTE: tagfilter returns every node that has the query in it, so 'IT' will return
+   * 'IT', but  also 'digit'
    */
   Gun.chain.tagfilter=function(tag,filterBy,query,cb){
   if(filterBy){
@@ -413,7 +394,7 @@ Gun.chain.untag = function (tag) {
     var wildcard = "*"
 
     function fn_filter(node,tags){
-      
+
       if(query==wildcard){
         nodes.push(node)
       } else {
