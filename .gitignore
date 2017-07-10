@@ -3,7 +3,7 @@ logs
 bower_components
 *.log
 npm-debug.log*
-*.gif
+#*.gif
 # Runtime data
 pids
 *.pid
