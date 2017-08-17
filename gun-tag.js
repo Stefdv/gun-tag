@@ -297,6 +297,8 @@ Gun.chain.untag = function (tag) {
 
         souls.forEach( soul => {
           gun.back(-1).get(soul).val(function(tagmember,key){
+            if(tagmember){
+              tagmember = Gun.obj.copy(tagmember); // due to 'leak' bug https://github.com/amark/gun/issues/322
               let g_tm = this;
               let a_tags = [];
               g_tm.get('tags').val( tags => {
@@ -310,6 +312,7 @@ Gun.chain.untag = function (tag) {
                 tagmember.taglist = a_tags;
                 returnCb(g_tm,arguments,key)
               });
+            }
             });
           });
           function returnCb(g_tm,args,soul){
