@@ -4,7 +4,7 @@
  * @gitter @Stefdv
  * @purpose Add tagging capabilities to Gun
  * 
- * @version 2.0.0
+ * @version 2.0.5
  * Now up to date for Gun v0.9.x.
  * 
  * @dependencies
