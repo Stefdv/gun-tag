@@ -37,7 +37,7 @@
 
   const isScope = (gun,tag) => {
     return new Promise(resolve => {
-      getScopes().then( sc => { 
+      getScopes(gun).then( sc => { 
         resolve(Object.keys(sc).includes(tag))
       })
     })
