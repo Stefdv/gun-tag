@@ -42,15 +42,15 @@ For the browser, it's much simpler, since your version of gun is exported as a g
 <script src="node_modules/gun-tag/gun-tag.js"></script>
 ```
 
-##API
-Fuur methods are exposed for your gun instance;
+## API
+Four methods are exposed for your gun instance;
 * `.tag`
 * `.proptag`
 * `.untag`
 * `.tagged` ( including filtering and intersects )
 
 
-## gun.get('stefdv').tag('programmer')
+## gun.get('Bob').tag('programmer')
 You can pass `.tag()` multiple names to index a node under. When called, it will try to read out your current context, index it under each tag, and then place each tag under a master list of every tag ever used.
 A tag can be a String or an Array (['one','Numbers/two','three'])
 
@@ -128,7 +128,7 @@ A special kind of tag. With 'proptag' the provided tag wil be set as a direct pr
 A proptag can be untagged like any other tag.
 ```
   gun.get('Bob').untag('has paid');
-  gun.get('Bob').once(cb) // {name:Stefdv,'has paid':false}
+  gun.get('Bob').once(cb) // {name:'Bob','has paid':false}
 ```
 
 ### gun.tagged()
