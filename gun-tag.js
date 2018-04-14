@@ -17,7 +17,8 @@
   } else {
     var Gun = require('gun/gun');
   }
-  Gun.chain.synclist || require('gun-synclist/gun-synclist');
+ try{ Gun.chain.synclist || require('gun-synclist/gun-synclist'); }
+ catch(e){console.log(e)}
 
   const _scopes = '__scopes';
   let _scope = 'gun-tag/';
