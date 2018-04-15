@@ -114,9 +114,10 @@
     });
   };
 
-  Gun.chain.tagged = function(tag,cb) {
+  Gun.chain.tagged = function(tag,cb,opt) {
     let gun = this;
     cb = cb || function(){};
+    opt=opt || {}
 
     if(arguments.length === 0) { return gun.get(_scope + 'TAGS'); };
 
@@ -162,10 +163,18 @@
     } 
     else if(tag.includes('/') ) {
       gun.get(tag).listonce(data => {
-        data.list = data.list.reduce(function(result, node) {
-          if(validateNode(node,tag)){ result.push(node);}
-          return result;
+        // data.lookup contains untagged nodes ( tag==0 ) also
+        // so it will be out of sync with the data.list !!
+        // should i built my lookup in here ?
+        data.lookup=[];
+        data.list = data.list.reduce(function(list, node) {
+          if(validateNode(node,tag)){ 
+            data.lookup[node._soul] = list.length;
+            list.push(node);
+          } 
+          return list;
         }, []);
+ 
         cb.call(gun,data);
       })
     }
@@ -178,9 +187,13 @@
           })
         } else {
           gun.get(_scope + tag ).listonce( data => {
-            data.list = data.list.reduce(function(result, node) {
-              if(validateNode(node,tag)){ result.push(node);}
-              return result;
+            data.lookup=[];
+            data.list = data.list.reduce(function(list, node) {
+              if(validateNode(node,tag)){ 
+                data.lookup[node._soul] = list.length;
+                list.push(node);
+              } 
+              return list;
             }, []);
             cb.call(gun,data)
           });
