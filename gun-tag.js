@@ -166,7 +166,7 @@
           if(validateNode(node,tag)){ result.push(node);}
           return result;
         }, []);
-        cb.call(gun,data.list);
+        cb.call(gun,data);
       })
     }
     else { 
@@ -182,7 +182,7 @@
               if(validateNode(node,tag)){ result.push(node);}
               return result;
             }, []);
-            cb.call(gun,data.list)
+            cb.call(gun,data)
           });
         };
       });
