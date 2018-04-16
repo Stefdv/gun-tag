@@ -166,7 +166,7 @@
         // data.lookup contains untagged nodes ( tag==0 ) also
         // so it will be out of sync with the data.list !!
         // should i built my lookup in here ?
-        data.lookup=[];
+        data.lookup={};
         data.list = data.list.reduce(function(list, node) {
           if(validateNode(node,tag)){ 
             data.lookup[node._soul] = list.length;
