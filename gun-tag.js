@@ -187,6 +187,7 @@
           })
         } else {
           gun.get(_scope + tag ).listonce( data => {
+            
             data.lookup={};
             data.list = data.list.reduce(function(list, node) {
               if(validateNode(node,tag)){ 
