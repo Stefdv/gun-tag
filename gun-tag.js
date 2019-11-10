@@ -67,6 +67,7 @@
   Gun.chain.tag = function (tag) {
     if(!tag || typeof(tag) === "number") { return this};
     if (Gun.list.is(tag) ) { return serialize(this, tag, 'tag');}
+
     let gun = this.back(-1);
     let nodeSoul,scopeSoul,newScope,newTag;
 

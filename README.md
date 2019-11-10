@@ -43,11 +43,13 @@ For the browser, it's much simpler, since your version of gun is exported as a g
 ```
 
 ## API
-Four methods are exposed for your gun instance;
+Several methods are exposed for your gun instance;
 * `.tag`
 * `.proptag`
 * `.untag`
-* `.tagged` ( including filtering and intersects )
+* `.switchtag`
+* `.tagged` 
+* `.intersect` ( aka filtering)
 
 
 ## gun.get('Bob').tag('programmer')
@@ -130,10 +132,25 @@ A proptag can be untagged like any other tag.
   gun.get('Bob').untag('has paid');
   gun.get('Bob').once(cb) // {name:'Bob','has paid':false}
 ```
+### gun.get().switchtag('from','to')
+The same as doing `gun.get("Bob").untag('married')` and then `gun.get("Bob").tag('single')`
+```
+  gun.get('Bob').switchtag('married','single') 
+```
 
-### gun.tagged()
+### gun.tagged() 
 When no arguments are provided you get the full tag list.<br>
 `gun.tagged().once(cb)`
+
+####Changed!!!
+You can now do `gun.tagged(cb)`
+```
+ gun.tagged(tags=>{
+   // {BOOKS:{'#':'BOOKS/TAGS'}},
+   // {MOVIES:{'#':'MOVIES/TAGS'}},
+   // {MEMBERS:{'#':'MEMBERS'}}
+ })
+```
 
 ### gun.tagged(tag, cb)
 Provide a tagname and a callback to get all valid members of that tag.<br>
@@ -142,8 +159,6 @@ The returned nodes are full objects.
  gun.tagged('gunDb',list => console.log(list) )
 
 ```
-
-> Please note that with 'scopedtags' like gun.tag('Books/Fantasy') you can get a list of all subtags under that scope with `gun.get(scope +'/TAGS')` ( tags is uppercase) or just `gun.tagged('Books',cb)`
 
 ```
  gun.tagged('Books/Fantasy',cb) // all fantasy books
@@ -174,7 +189,7 @@ gun.tagged('MEMBERS', list => {
   // list -> create nice member list
 })
 ```
-Let's create an extra page in our app, one that shows the mebers that actually paid there contribution.
+Let's create an extra page in our app, one that shows the members that actually paid there contribution.
 
 ```
 gun.tagged('MEMBERS/Paid',  list => {
@@ -243,7 +258,7 @@ Get all Fantasy books, written by (Stephen) King , published in 1988.
 ```
 
 ### Subscribing - a word of advise.
-Offcourse it is possible to subscribe to changes on a tag like `gun.get('Books/Lent').synclist(cb)` and you will be notified when the status of those books changes. But then you'll have to subscibe to 'Books/borrowed' also...But what if you borrowed a book from one friend and loan it to another? You'll end up with two subscriptions on the same book.
+Offcourse it is possible to subscribe to changes on a tag like `gun.get('Books/Lent').synclist(cb)` and you will be notified when the status of those books changes. But then you'll have to subscibe to 'Books/borrowed' also...But what if you borrowed a book from one friend and loan it to another? (despite the fact that it is not a nice thing to do ;p) You'll end up with two subscriptions on the same book.
 
 #### my advise
 Store all books in a `set()`, then subscribe to that.
@@ -263,4 +278,4 @@ Now you can go wild with tagging/untagging/retagging your books. Every change wi
 gun-tag is born of necessity, and over time became really powerfull if you fully understand it's potential. That being said... tell me what you want to do and - maybe- i can advise you. I'm not much of an email reader so ping me in [gitter](https://gitter.im/amark/gun) @Stefdv
 
 ### Credits
-Thanks to Mark Nadal for writing Gun  and for helping out whenever i need.
+Thanks to Mark Nadal for writing Gun and for helping out whenever i need.
