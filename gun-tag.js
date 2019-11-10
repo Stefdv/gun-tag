@@ -154,7 +154,7 @@
     });
   };
 
-  Gun.chain.tagged = function(tag,cb,opt) {
+ Gun.chain.tagged = function(tag,cb,opt) {
     let gun = this;
     cb = cb || function(){};
     opt=opt || {};
@@ -163,49 +163,49 @@
       return gun.get(_scope + 'TAGS'); // return all tagnames
     };
 
-    if(arguments.length === 1 && typeof(arguments[0]=='function')){
-        gun.get(_scope+'TAGS').once(data=>{
+    if(!Gun.text.is(tag) &&! Gun.list.is(tag)){
+      if(typeof(tag)=='function') {
+        let cb = tag
+        gun.get(_scope+'TAGS').listonce(data=>{
           delete ((data = Gun.obj.copy(data))||{})._;
-          arguments[0].call(gun,data)
+          cb.call(gun,data)
+        })
+      } else {
+        console.warn( 'tags must be a String or an Array of Strings!', tag);
+        return gun;
+      }
+
+    };
+
+
+
+    if(Gun.text.is(tag) && arguments.length === 1) {
+      if(tag.includes('/') ) { return gun.get(tag); } // tagged as 'books/fantasy'
+      return gun.get(_scope + tag);
+    };
+
+    if(typeof(tag)=='function') {
+      let cb = tag
+      gun.get(_scope+'TAGS').listonce(data=>{
+        delete ((data = Gun.obj.copy(data))||{})._;
+        cb.call(gun.data)
       })
-    } else if(Gun.list.is(tag)) {
-      console.info(`You provided an Array, you might want to use 'gun.intersect(${tag})'`)
-      return this
-     } else if(tag.includes('/TAGS')) {
-      gun.get(tag).listonce( data => {
-        cb.call(gun,data)
-      })
-    } else if(tag.includes('/')) {
-      gun.get(tag).listonce(data => {
-        // data.lookup and data.list contains untagged nodes ( tag==0 ) also
-        // we need to filter the nodes and only return tag==1 nodes
-        data.lookup={};
-        data.list = data.list.reduce((list, node)=>{
+    }
+
+    if(Gun.text.is(tag) && arguments.length > 1) {
+
+      gun.get(_scope + tag ).listonce( data => {
+        delete ((data = Gun.obj.copy(data))||{})._;
+        data.lookup ={};
+        data.list = data.list.reduce((list, node) => {
           if(validateNode(node,tag)){
             data.lookup[node._soul] = list.length;
             list.push(node);
           }
-          return list;
-        }, []);
-        cb.call(gun,data);
+          return list
+        },[]);
+        cb.call(gun,data)
       })
-    } else {
-      isScope(gun,tag)
-        .then( _isScope => {
-          if(_isScope) {
-            gun.get(tag + '/TAGS').once(data => {
-              delete ((data = Gun.obj.copy(data))||{})._;
-                cb.call(gun,data)
-            })
-          } else {
-            gun.get(_scope + tag ).listonce( data => {
-              cb.call(gun,data)
-            },{filtertags:true});
-          };
-        })
-        .catch(error => {
-          console.log(error);
-        });
     }
   };
 
