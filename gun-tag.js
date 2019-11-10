@@ -181,14 +181,6 @@
       return gun.get(_scope + tag);
     };
 
-    if(typeof(tag)=='function') {
-      let cb = tag
-      gun.get(_scope+'TAGS').listonce(data=>{
-        delete ((data = Gun.obj.copy(data))||{})._;
-        cb.call(gun.data)
-      })
-    }
-
     if(Gun.text.is(tag) && arguments.length > 1) {
 
       gun.get(_scope + tag ).listonce( data => {
