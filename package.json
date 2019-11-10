@@ -1,6 +1,6 @@
 {
   "name": "gun-tag",
-  "version": "2.0.6",
+  "version": "3.0.0",
   "description": "Add tagging capabilities to gun!",
   "main": "gun-tag.js",
   "scripts": {
@@ -23,6 +23,6 @@
   },
   "homepage": "https://github.com/Stefdv/gun-tag#readme",
   "dependencies": {
-    "gun-synclist": "^1.0.0"
+    "gun-synclist": "^1.0.2"
   }
 }
