@@ -185,15 +185,15 @@ allmembers.forEach( member => {
 ```
 Great, now instead of building a visual list from our set, we build it from our tagged members.
 ```
-gun.tagged('MEMBERS', list => {
-  // list -> create nice member list
+gun.tagged('MEMBERS', data => {
+  // data.list -> create nice member list
 })
 ```
 Let's create an extra page in our app, one that shows the members that actually paid there contribution.
 
 ```
-gun.tagged('MEMBERS/Paid',  list => {
-  // list -> create list with members that paid
+gun.tagged('MEMBERS/Paid',  data => {
+  // data.list -> create list with members that paid
 })
 ```
 Oh.. but Bob didn't pay.
@@ -204,8 +204,8 @@ So if we would refresh our list...
 >please read the section about subscribing further down.
 
 ```
-gun.tagged('MEMBERS/Paid', list => {
-  // list -> all members that 'paid'...not Bob!
+gun.tagged('MEMBERS/Paid', data => {
+  // data.list -> all members that 'paid'...not Bob!
 });
 ```
 Once a month ( or so ) we want to kick the members that didn't pay.
@@ -215,8 +215,8 @@ Nodes returned from `gun.tagged()` are actually tagged and have an extra '_soul'
 
 
 ```
-gun.tagged('MEMBERS', list => {
-  list.forEach(member=>{
+gun.tagged('MEMBERS', data => {
+  data.list.forEach(member=>{
     if(member.tags['MEMBERS/Paid] === 0) {
       // and there is Bob...
       gun.get(member._soul).untag('MEMBER');
@@ -227,8 +227,8 @@ gun.tagged('MEMBERS', list => {
 Now Bob is no longer a member...<br>
 
 ```
-gun.tagged('MEMBERS', list => {
-  // list -> all members ...no more 'Bob'
+gun.tagged('MEMBERS', data => {
+  // data.list -> all members ...no more 'Bob'
 })
 ```
 >So there you have it...deleted ? No, but Bob won't show up either.
@@ -236,8 +236,8 @@ gun.tagged('MEMBERS', list => {
 After a year we want to invite ex-members again.<br>
 Luckily we still have our original `set()`
 ```
-gun.get('MEMBERS').loadonce(list=>{
-  list.forEach(member=>{
+gun.get('MEMBERS').listonce(data=>{
+  data.list.forEach(member=>{
     if(member.tags['MEMBERS'] === 0) {
       // Bob !!!  -> Invite him
     }
@@ -245,7 +245,7 @@ gun.get('MEMBERS').loadonce(list=>{
 })
 
 ```
->You'll notice i use `synclist` and `loadonce` in my examples. `synclist` ( includes `loadonce`) is one of my other Gun extensions. You can read more about it [here](https://github.com/Stefdv/gun-synclist)
+>You'll notice i use `synclist` and `listonce` in my examples. `synclist` ( includes `listonce`) is one of my other Gun extensions. You can read more about it [here](https://github.com/Stefdv/gun-synclist)
 
 ### intersect or filter
 
