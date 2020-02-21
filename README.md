@@ -1,6 +1,6 @@
 # gun-tag
-
-### Intro
+## NOTE: You'll also need https://github.com/Stefdv/gun-synclist . I'm rewriting gun-tag and will include it when it's done. Sorry
+### Intro 
 
 GUN Tag is a plugin for Gun(^0.9.x) using `Gun.chain`.
 
