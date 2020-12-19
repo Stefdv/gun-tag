@@ -254,7 +254,7 @@ An intersect is a list with nodes that are tagged to ALL provided tags. This is 
 We can achieve this by providing an Array to `gun.tagged()`.<br>
 Get all Fantasy books, written by (Stephen) King , published in 1988.
 ```
- gun.tagged( ['Books/Fantasy','Authors/King','Published/1988'],cb)
+ gun.intersect( ['Books/Fantasy','Authors/King','Published/1988'],cb)
 ```
 
 ### Subscribing - a word of advise.
